@@ -1,0 +1,39 @@
+-- Таблица пользователей
+CREATE TABLE users (
+  id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY COMMENT "Идентификатор строки", 
+  first_name VARCHAR(100) NOT NULL COMMENT "Имя пользователя",
+  last_name VARCHAR(100) NOT NULL COMMENT "Фамилия пользователя",
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT "Время создания строки",  
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT "Время обновления строки"
+);  
+
+-- Таблица с постами
+CREATE TABLE IF NOT EXISTS posts (
+  id INT UNSIGNED NOT NULL  AUTO_INCREMENT PRIMARY KEY COMMENT "Идентификатор строки",
+  user_id INT UNSIGNED NOT NULL COMMENT "Ссылка на пользователя", 
+  post TEXT NOT NULL COMMENT "Текст поста",
+  likes_id INT UNSIGNED NOT NULL COMMENT "Последний номер id таблицы лайков",
+  dislikes_id INT UNSIGNED NOT NULL COMMENT "Последний номер id таблицы дизлайков",
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT "Время создания строки",  
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT "Время обновления строки"
+);
+
+-- Таблица лайков
+CREATE TABLE IF NOT EXISTS likes (
+  id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY COMMENT "Идентификатор строки",
+  user_id INT UNSIGNED NOT NULL COMMENT "Ссылка на пользователя", 
+  post_id INT UNSIGNED NOT NULL COMMENT "Ссылка на пост", 
+  comment TEXT NOT NULL COMMENT "Текст коммента",
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT "Время создания строки",  
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT "Время обновления строки"
+  ); COMMENT "Думаю, что можно еще создать уникальную связь user_id+comment_id для ответных комментов на коммент",
+
+-- Таблица дизлайков
+CREATE TABLE IF NOT EXISTS dislikes (
+  id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY COMMENT "Идентификатор строки",
+  user_id INT UNSIGNED NOT NULL COMMENT "Ссылка на пользователя", 
+  post_id INT UNSIGNED NOT NULL COMMENT "Ссылка на пост", 
+  comment TEXT NOT NULL COMMENT "Текст коммента",
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT "Время создания строки",  
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT "Время обновления строки"
+  ); COMMENT "Думаю, что еще можно создать уникальную связь user_id+comment_id для ответных комментов на коммент",
