@@ -1,0 +1,35 @@
+-- Переписать запросы, заданые к ДЗ урока 6, с использованием JOIN.
+
+-- 1.	Определить кто больше поставил лайков (всего) - мужчины или женщины?
+
+SELECT COUNT(likes.user_id) AS quantity, profiles.gender
+  FROM likes  
+    JOIN profiles  
+      ON likes.user_id = profiles.user_id
+       GROUP BY profiles.gender LIMIT 1;
+       
+-- 2. Вывести для каждого пользователя количество созданных 
+-- сообщений, постов, загруженных медиафайлов и поставленных лайков.
+
+SELECT concat(first_name, ' ',last_name) as fullname,
+  count(messages.from_user_id) as total_messages,
+  count(posts.user_id) as total_post,
+  count(media.user_id) as total_media,
+  count(likes.user_id) as total_likes
+  FROM users
+    left JOIN messages 
+      ON users.id = messages.from_user_id 
+    left join posts 
+      on users.id = posts.user_id 
+    left join media 
+      on users.id = media.user_id  
+     left join likes 
+      on users.id = likes.user_id group by fullname;
+ 
+ -- 3. (по желанию) Подсчитать количество лайков которые получили 10 самых последних сообщений.
+ 
+ select count(target_type) as total_likes
+  from likes 
+    join messages 
+      on likes.target_id = messages.id and target_type = 'messages'
+       order by likes.created_at desc limit 10;
