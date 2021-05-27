@@ -1,0 +1,10 @@
+1.	Создайте двух пользователей которые имеют доступ к базе данных shop. 
+Первому пользователю shop_read должны быть доступны только запросы на 
+чтение данных, второму пользователю shop — любые операции в пределах базы данных shop.
+
+create user 'shop_reader'@'localhost' IDENTIFIED WITH sha256_password BY '123';
+grant select on shop_9.* TO 'shop_reader'@'localhost';
+
+create user 'shop'@'localhost' IDENTIFIED WITH sha256_password BY '123';
+grant all on shop_online.* TO 'shop'@'localhost';
+grant grant option on shop_9.* TO 'shop'@'localhost';
