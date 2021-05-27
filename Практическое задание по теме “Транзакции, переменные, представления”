@@ -1,0 +1,87 @@
+-- Практическое задание по теме “Транзакции, переменные, представления”
+-- 1.	В базе данных shop и sample присутствуют одни и те же таблицы, учебной базы данных. 
+-- Переместите запись id = 1 из таблицы shop.users в таблицу sample.users. 
+-- Используйте транзакции.
+
+START TRANSACTION;
+
+SELECT id, name, birthday_at, created_at, updated_at from shop_9.users  WHERE id = 1;
+
+INSERT INTO sample.users
+  SELECT id, name, birthday_at, created_at, updated_at from shop_9.users  WHERE id = 1;
+
+commit;
+
+-- 2.	Создайте представление, которое выводит название name товарной позиции из 
+-- таблицы products и соответствующее название каталога name из таблицы catalogs.
+
+-- Сначала сделал запрос:
+SELECT products.name as name_of_product, catalogs.name as name_of_catalog   
+  FROM products  
+    JOIN catalogs  
+      ON products.catalog_id = catalogs.id;
+      
+      
+-- Потом создал  представление:
+CREATE VIEW products_by_catalog as
+ SELECT products.name as name_of_product, catalogs.name as name_of_catalog   
+  FROM products  
+    JOIN catalogs  
+      ON products.catalog_id = catalogs.id;
+
+/* 3.	(по желанию) Пусть имеется таблица с календарным полем created_at.
+ В ней размещены разряженые календарные записи за август 2018 года '2018-08-01', 
+ '2016-08-04', '2018-08-16' и 2018-08-17. Составьте запрос, который выводит полный 
+ список дат за август, выставляя в соседнем поле значение 1, если дата присутствует 
+ в исходном таблице и 0, если она отсутствует. */
+
+-- Создал таблицу august для четырех данных дат:
+DROP TABLE IF EXISTS august;
+create table august (
+  id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  created_at DATE);
+ 
+ -- Заполнил таблицу:
+select * from august; 
+INSERT INTO august (created_at) VALUES
+  ('2018-08-01'), ('2018-08-04'), ('2018-08-16'), ('2018-08-17');
+
+ -- Создал временную таблицу всех дат августа:
+DROP TABLE IF EXISTS full_august;
+create temporary table full_august( 
+    id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY, 
+     dates DATE);
+    
+ INSERT INTO full_august (dates) VALUES
+  ('2018-08-01'), ('2018-08-02'), ('2018-08-03'), ('2018-08-04'), 
+  ('2018-08-05'), ('2018-08-06'), ('2018-08-07'), ('2018-08-08'), 
+  ('2018-08-09'), ('2018-08-10'), ('2018-08-11'), ('2018-08-12'), 
+  ('2018-08-13'), ('2018-08-14'), ('2018-08-15'), ('2018-08-16'), 
+  ('2018-08-17'), ('2018-08-18'), ('2018-08-19'), ('2018-08-20'), 
+  ('2018-08-21'), ('2018-08-22'), ('2018-08-23'), ('2018-08-24'), 
+  ('2018-08-25'), ('2018-08-26'), ('2018-08-27'), ('2018-08-28'), 
+  ('2018-08-29'), ('2018-08-30'), ('2018-08-31');   
+
+ -- Создал предварительный запрос соеденив две таблицы:
+select full_august.dates, august.created_at
+  from full_august
+    left join august 
+      on full_august.dates = august.created_at  ; 
+
+ -- Скорректировал запрос заменив колонку:
+select full_august.dates, 
+  CASE WHEN august.created_at is NULL 
+    THEN FALSE 
+      ELSE TRUE END AS boolean_coloumn  
+        from full_august
+          left join august 
+            on full_august.dates = august.created_at;
+
+/* 4.	(по желанию) Пусть имеется любая таблица с календарным полем created_at. 
+ * Создайте запрос, который удаляет устаревшие записи из таблицы, 
+ * оставляя только 5 самых свежих записей. */
+
+SELECT * FROM users ORDER BY created_at DESC LIMIT 5;
+
+CREATE VIEW top_5  AS SELECT * FROM users ORDER BY created_at DESC LIMIT 5;
+
