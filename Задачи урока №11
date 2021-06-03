@@ -1,0 +1,49 @@
+-- 1. Создайте таблицу logs типа Archive. Пусть при каждом создании записи в таблицах users, 
+-- catalogs и products в таблицу logs помещается время и дата создания записи, 
+-- название таблицы, идентификатор первичного ключа и содержимое поля name.
+
+create table if not exists logs (
+created_at DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT "Время и дата создания записи",
+table_name VARCHAR(100) NOT NULL COMMENT "Название таблицы",
+id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY COMMENT "Идентификатор строки",
+name VARCHAR(100) NOT NULL COMMENT "Содержимое поля name"
+) ENGINE = ARCHIVE;
+
+-- триггер для users
+DROP TRIGGER IF EXISTS check_users_for_log;
+DELIMITER //
+
+CREATE TRIGGER check_users_for_log before insert on users
+for each row
+begin
+  insert into logs (created_at, table_name, id, name)
+  values (NOW(), 'users', new.id, new.name);
+END//
+
+DELIMITER ;
+
+-- триггер для catalogs
+DROP TRIGGER IF EXISTS check_catalogs_for_log;
+DELIMITER //
+
+CREATE TRIGGER check_catalogs_for_log before insert on catalogs
+for each row
+begin
+  insert into logs (created_at, table_name, id, name)
+  values (NOW(), 'catalogs', new.id, new.name);
+END//
+
+DELIMITER ;
+
+-- триггер для products
+DROP TRIGGER IF EXISTS check_products_for_log;
+DELIMITER //
+
+CREATE TRIGGER check_products_for_log before insert on products
+for each row
+begin
+  insert into logs (created_at, table_name, id, name)
+  values (NOW(), 'products', new.id, new.name);
+END//
+
+DELIMITER ;
