@@ -1,0 +1,53 @@
+-- 1. В базе данных Redis подберите коллекцию для подсчета посещений с определенных IP-адресов.
+!! не понял что требуется. списывать с интернета или с лекции 12 урока не стал.
+
+-- 2. При помощи базы данных Redis решите задачу поиска имени пользователя по электронному 
+-- адресу и наоборот, поиск электронного адреса пользователя по его имени.
+
+127.0.0.1:6379> hset user_name Igor 'igor@email.ru'
+(integer) 1
+127.0.0.1:6379> hset user_emai igor@email.ru 'Igor'
+(integer) 1
+127.0.0.1:6379> hset names 'alex' 'alex@email.ru'
+(integer) 1
+127.0.0.1:6379> hset names 'root' 'root@email.ru'
+(integer) 1
+127.0.0.1:6379> hset emails 'root@email.ru' 'root'
+(integer) 1
+127.0.0.1:6379> hset emails 'alex@email.ru' 'Alex'
+(integer) 1
+127.0.0.1:6379> hget names 'root'
+"root@email.ru"
+127.0.0.1:6379> hget emails 'root@email.ru'
+"root"
+127.0.0.1:6379>
+
+-- 3. Организуйте хранение категорий и товарных позиций учебной базы данных shop в СУБД MongoDB.
+> show dbs
+admin   0.000GB
+config  0.000GB
+local   0.000GB
+> use shop
+switched to db shop
+> db.catalog.insert({name: 'Процессоры'})
+WriteResult({ "nInserted" : 1 })
+> db.catalog.insert({name: 'Видеокарты'})
+WriteResult({ "nInserted" : 1 })
+> db.catalog.insert({name: 'Материнские карты'})
+WriteResult({ "nInserted" : 1 })
+> db.catalog.find()
+{ "_id" : ObjectId("60ba2e55cfe1e54528e86cc2"), "name" : "Процессоры" }
+{ "_id" : ObjectId("60ba2ee5cfe1e54528e86cc3"), "name" : "Видеокарты" }
+{ "_id" : ObjectId("60ba2ef5cfe1e54528e86cc4"), "name" : "Материнские карты" }
+> db.products.insert( {name: 'Intel Core i5-7400', description: 'Процессор для начтольных персоныльных компьютеров, основанных на платформе Intel', price: 7890, catalog_id: ObjectId("60ba2e55cfe1e54528e86cc2")})
+WriteResult({ "nInserted" : 1 })
+> db.products.find()
+{ "_id" : ObjectId("60ba30f7cfe1e54528e86cc5"), "name" : "Intel Core i5-7400", "description" : "Процессор для начтольных персоныльных компьютеров, основанных на платформе Intel", "price" : 7890, "catalog_id" : ObjectId("60ba2e55cfe1e54528e86cc2") }
+> db.products.insert( {name: 'Asus ROG MAXIMUS X HERO', description: 'Материнская плата ASUS ROG MAXIMUS X HERO, Z370, Socket 1151-V2, DDR4, ATX', price: 19310, catalog_id: ObjectId("60ba2ef5cfe1e54528e86cc4")})
+WriteResult({ "nInserted" : 1 })
+> db.products.insert( {name: 'GIGABYTE GeForce GT730 LP 2GB', description: 'Видеокарта GIGABYTE GeForce GT730 LP 2GB', price: 5498, catalog_id: ObjectId("60ba2ee5cfe1e54528e86cc3")})
+WriteResult({ "nInserted" : 1 })
+> db.products.find()
+{ "_id" : ObjectId("60ba30f7cfe1e54528e86cc5"), "name" : "Intel Core i5-7400", "description" : "Процессор для начтольных персоныльных компьютеров, основанных на платформе Intel", "price" : 7890, "catalog_id" : ObjectId("60ba2e55cfe1e54528e86cc2") }
+{ "_id" : ObjectId("60ba359acfe1e54528e86cc6"), "name" : "Asus ROG MAXIMUS X HERO", "description" : "Материнская плата ASUS ROG MAXIMUS X HERO, Z370, Socket 1151-V2, DDR4, ATX", "price" : 19310, "catalog_id" : ObjectId("60ba2ef5cfe1e54528e86cc4") }
+{ "_id" : ObjectId("60ba365bcfe1e54528e86cc7"), "name" : "GIGABYTE GeForce GT730 LP 2GB", "description" : "Видеокарта GIGABYTE GeForce GT730 LP 2GB", "price" : 5498, "catalog_id" : ObjectId("60ba2ee5cfe1e54528e86cc3") }
