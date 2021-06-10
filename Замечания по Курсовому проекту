@@ -1,0 +1,102 @@
+
+-- 1. Вы пишете - Пришлось переименовать колонку в таблице catalog для запросов - не совсем понял зачем. 
+-- При запросах попадались колонки с одинаковыми наименованиями. 
+-- Из-за этого запрос не работал. потом понял что можно делать запрос таким образом <таблицf>.<колонка>. 
+
+-- ! 2. В таблице catalog_sections стобец categories 
+-- VARCHAR(100) - тут название категории, лучше в единственном числе.
+ALTER TABLE catalog_sections RENAME COLUMN categories TO category;
+
+
+
+-- ! 4. В review_users products_id INT - это ссылка на определённый товар, 
+-- лучше product_id.
+ALTER TABLE review_users RENAME COLUMN products_id TO product_id;
+
+
+ -- ! 5. В users busket_id INT UNSIGNED COMMENT 
+ -- 'Корзина покупателя' - лучше определять ссылку на владельца в корзине.
+ALTER table users drop CONSTRAINT user_busket_fk;
+ALTER table users drop CONSTRAINT user_orders_fk;
+ALTER table users drop busket_id;
+ALTER table users drop order_id;
+
+ALTER TABLE busket add column login_user_id INT unsigned after id;
+
+update busket 
+  set login_user_id = (FLOOR(1 + RAND() * 20));
+ 
+select * from busket b ;
+
+
+-- ! 6. Аналогично в таблице users для order_id INT UNSIGNED COMMENT 
+-- 'Заказ покупателя' - ссылку на заказчика нужно определять в заказе, 
+-- в вашем варианте у пользователя может быть только один заказ.
+ALTER TABLE orders add column login_user_id INT unsigned after order_number;
+
+update orders 
+  set login_user_id = (FLOOR(1 + RAND() * 20));
+
+ select * from orders o ;
+
+
+-- 7. В профилях login_user_id INT UNSIGNED COMMENT 'Ссылка на логин покупателя' - это лишнее, 
+-- логин можно хранить сразу в столбце таблицы.
+-- Скопироавал колонку login_user из users. Таблицу users удалил. Переписал ключи. 
+-- Скрипт не сохранился после перезагрузки компьюра. Но БД изменена.
+-- Разделил данные пользователя на две колонки login_user и users,  чтобы пользователь 
+-- мог не заполнять свои настоящие данные, а пользоваться только логином. 
+-- Логин был бы индетификаторм для интернет магазина. Изначально создавал БД так 
+-- чтоб у каждого пользователя была своя таблица busket и orders. И связь была через login_user.
+-- Потом отказался от этой идеи, yачал создавать струкру БД другим образом, 
+-- и не исправли таблицы busket и orders,  
+-- что привело к такми ошибкам как замечания №5 и 6.
+
+-- 8. В busket proucts_id INT UNSIGNED COMMENT 
+-- 'Ссылка на товар' - это неправильно, так можно 
+-- поместить только один товар в корзину. 
+-- Нужна таблица связи корзины и товара.
+
+-- ** В этих двух таблицах придерживаюсь принципа товар в заказ должен попадать только из корзины.
+-- Нельзя вставить в таблицу заказов id товара миновав корзину. В корзину можно накидать сколько угодно товара, 
+-- но в заказы помещается только оплаченный твора. 
+-- Уже в измененной таблице пользователь может заказывать более одного товара.
+select id , proucts_id from busket b where profile_id = 10;
+-- этот запрос выдает 4 proucts_id. 
+
+-- Следовательно нужно исправить наполнение orders.busket_id и orders.profile_id
+ALTER TABLE orders rename column login_user_id to profile_id;
+
+select busket.id as id_of_busket,
+       busket.proucts_id as poduct_from_busket,
+       busket.profile_id as profile_from_busket,
+       orders.order_number as N_of_order,
+       orders.id as id_of_order,
+       orders.profile_id as profile_from_orders,
+       orders.buskets_id as buskets_id_from_orders
+  from busket 
+    left join orders 
+      on busket.id = orders.id;
+
+ update orders set profile_id = case 
+ 	when id = 1 then 10
+ 	when id = 2 then 8
+ 	when id = 3 then 8
+ 	when id = 4 then 10
+ 	when id = 5 then 10
+ 	when id = 6 then 4
+ 	when id = 7 then 9
+ 	when id = 8 then NULL
+ 	when id = 9 then NULL
+ 	when id = 10 then NULL
+ 	when id = 11 then 9
+ 	when id = 12 then 10
+ 	when id = 13 then NULL
+ 	when id = 14 then 3
+ 	when id = 15 then 4
+ 	when id = 16 then 9
+end ;  
+
+
+-- 9. status CHAR(20) COMMENT 'Вариации статуса' - почему не VARCHAR?
+-- особого замысла не было, видел в одной из наших лекций, где короткое и не изменчивое значение поля применялось CHAR 
